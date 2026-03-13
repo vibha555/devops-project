@@ -1,10 +1,25 @@
 pipeline {
  agent any
+
  stages {
-  stage('Test') {
+
+  stage('Checkout') {
    steps {
-    echo "Hello Vibha Pipeline"
+    git 'https://github.com/vibha555/devops-project.git'
    }
   }
+
+  stage('Build Docker Image') {
+   steps {
+    sh 'docker build -t vibha-app .'
+   }
+  }
+
+  stage('Verify Image') {
+   steps {
+    sh 'docker images'
+   }
+  }
+
  }
 }
