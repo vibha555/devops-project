@@ -1,24 +1,43 @@
 pipeline {
  agent any
 
+ environment {
+  AWS_REGION = 'us-east-1'
+  ECR_REPO = '532383681646.dkr.ecr.us-east-1.amazonaws.com/vibha-repo'
+ }
+
  stages {
 
   stage('Checkout') {
    steps {
     git branch: 'main',
-        url: 'https://github.com/vibha555/devops-project.git'
+    url: 'https://github.com/vibha555/devops-project.git'
    }
   }
 
-  stage('Build Docker Image') {
+  stage('Build Image') {
    steps {
     sh 'docker build -t vibha-app .'
    }
   }
 
-  stage('Verify Image') {
+  stage('Tag Image') {
    steps {
-    sh 'docker images'
+    sh 'docker tag vibha-app:latest $ECR_REPO:latest'
+   }
+  }
+
+  stage('Login to ECR') {
+   steps {
+    sh '''
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 532383681646.dkr.ecr.us-east-1.amazonaws.com
+    '''
+   }
+  }
+
+  stage('Push Image') {
+   steps {
+    sh 'docker push $ECR_REPO:latest'
    }
   }
 
